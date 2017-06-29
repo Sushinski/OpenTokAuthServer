@@ -1,13 +1,14 @@
 from django.http import JsonResponse
 from OpenTokAuthServer.models import Connection, SessionKeys
+from opentok import OpenTok, MediaModes
 
-TEST_TOKEN = r'T1==cGFydG5lcl9pZD00NTkwMDA2MiZzaWc9MGI4MGE0MjY0OGFjYmI2ZTkxMjA1ZmIzYjQ1YjhjMmI3YmUzYTRiZjpzZXNzaW9uX2lkPTJfTVg0ME5Ua3dNREEyTW41LU1UUTVPREkwT0RZeU16STFNSDVHY1RoNFJXaHRTblZaZHpNNVIwZ3pTbUZJYTNkTGJsUi1mZyZjcmVhdGVfdGltZT0xNDk4MjQ4NzA3Jm5vbmNlPTAuOTI0MjMxMDUyNTI1NzI5MyZyb2xlPW1vZGVyYXRvciZleHBpcmVfdGltZT0xNTAwODQwNzA0'
-TEST_SESSION_ID = r'2_MX40NTkwMDA2Mn5-MTQ5ODI0ODYyMzI1MH5GcTh4RWhtSnVZdzM5R0gzSmFIa3dLblR-fg'
 TEST_API_KEY = r'45900062'
+TEST_API_SECRET = r'd4c973383d8f9eca272a89e31be614dbd07e60c3'
 
 
 def session_view(request):
     if request.method == 'GET':
+
         responce = dict()
         # try to get pending client keys
         conn_obj = Connection.objects.filter(connections__lt=Connection.ALLOWED_CONNECTIONS).last()
@@ -18,9 +19,11 @@ def session_view(request):
             conn_obj.connections += 1
             conn_obj.save()
         else:  # to get: new keys
-            responce['apiKey'] = TEST_API_KEY  # todo get real api key
-            responce['sessionId'] = TEST_SESSION_ID  # todo real ses id
-            responce['token'] = TEST_TOKEN  # todo real token
+            opentok = OpenTok(TEST_API_KEY, TEST_API_SECRET)
+            session = opentok.create_session(media_mode=MediaModes.relayed)
+            responce['apiKey'] = TEST_API_KEY
+            responce['sessionId'] = session.session_id
+            responce['token'] = session.generate_token()
             new_ses_keys = SessionKeys()
             new_ses_keys.api_key = responce['apiKey']
             new_ses_keys.session_id = responce['sessionId']
