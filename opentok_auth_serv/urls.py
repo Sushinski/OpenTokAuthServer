@@ -19,6 +19,6 @@ from OpenTokAuthServer import views
 
 urlpatterns = [
     # url(r'^admin/', admin.site.urls),
-    url(r'^session/new', views.session_new, name='new'),
+    url(r'^session/new/(?P<app_key>.*)', views.session_new, name='new'),
     url(r'^session/delete/(?P<session_id>.*)', views.session_delete, name='delete')
 ]

@@ -13,3 +13,4 @@ class Connection(models.Model):
     _id = models.AutoField(primary_key=True)
     session_key = models.ForeignKey(SessionKeys, blank=False, null=False)
     connections = models.IntegerField(default=0)
+    opener_app_key = models.UUIDField(default="")
