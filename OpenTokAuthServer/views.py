@@ -21,8 +21,8 @@ def session_new(request, app_key):
                 conn_obj.connections += 1
             conn_obj.save()
         else:  # to get: new keys
-            opentok = OpenTok(TEST_API_KEY, TEST_API_SECRET)
-            session = opentok.create_session(media_mode=MediaModes.relayed)
+            opentok_ses = OpenTok(TEST_API_KEY, TEST_API_SECRET)
+            session = opentok_ses.create_session(media_mode=MediaModes.relayed)
             responce['apiKey'] = TEST_API_KEY
             responce['sessionId'] = session.session_id
             responce['token'] = session.generate_token()
