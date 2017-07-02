@@ -3,7 +3,7 @@ from django.http import JsonResponse, HttpResponse
 from django.views.decorators.csrf import csrf_exempt
 
 from OpenTokAuthServer.models import Connection, SessionKeys
-# from opentok import OpenTok, MediaModes
+from opentok import OpenTok, MediaModes
 
 TEST_API_KEY = r'45900062'
 TEST_API_SECRET = r'd4c973383d8f9eca272a89e31be614dbd07e60c3'
@@ -30,11 +30,11 @@ def session_new(request, app_key):
                 conn_obj.connections += 1
                 conn_obj.save()
             else:  # to get: new keys
-                #opentok_ses = OpenTok(TEST_API_KEY, TEST_API_SECRET)
-                #session = opentok_ses.create_session(media_mode=MediaModes.relayed)
+                opentok_ses = OpenTok(TEST_API_KEY, TEST_API_SECRET)
+                session = opentok_ses.create_session(media_mode=MediaModes.relayed)
                 responce['apiKey'] = TEST_API_KEY
-                responce['sessionId'] = "test session id"#session.session_id
-                responce['token'] = "test token"#session.generate_token()
+                responce['sessionId'] = session.session_id
+                responce['token'] = session.generate_token()
                 new_ses_keys = SessionKeys()
                 new_ses_keys.api_key = responce['apiKey']
                 new_ses_keys.session_id = responce['sessionId']
