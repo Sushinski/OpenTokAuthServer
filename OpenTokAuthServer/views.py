@@ -12,24 +12,30 @@ TEST_API_SECRET = r'd4c973383d8f9eca272a89e31be614dbd07e60c3'
 def session_new(request, app_key):
     if request.method == 'GET':
         responce = dict()
+        # start with old session starters
         old_conn_obj = Connection.objects.\
             filter(opener_app_key=uuid.UUID(app_key)).last()
+        # if have one with our key - reuse keys
         if old_conn_obj:
             responce['apiKey'] = old_conn_obj.session_key.api_key
             responce['sessionId'] = old_conn_obj.session_key.session_id
             responce['token'] = old_conn_obj.session_key.token
+            # if already paired - reuse and drop
             if old_conn_obj.connections == Connection.ALLOWED_CONNECTIONS:
                 old_conn_obj.delete()
+        # if none of old us
         else:
             # try to get pending client`s keys
             conn_obj = Connection.objects.filter(connections__lt=Connection.ALLOWED_CONNECTIONS).last()
+            # if have waiters
             if conn_obj:
                 responce['apiKey'] = conn_obj.session_key.api_key
                 responce['sessionId'] = conn_obj.session_key.session_id
                 responce['token'] = conn_obj.session_key.token
+                # use generated keys and increment connections count
                 conn_obj.connections += 1
                 conn_obj.save()
-            else:  # to get: new keys
+            else:  # if none of already assigned  - issue new and save
                 opentok_ses = OpenTok(TEST_API_KEY, TEST_API_SECRET)
                 session = opentok_ses.create_session(media_mode=MediaModes.relayed)
                 responce['apiKey'] = TEST_API_KEY
@@ -53,6 +59,7 @@ def session_new(request, app_key):
 @csrf_exempt
 def session_delete(request, session_id):
     if request.method == 'DELETE':
+        # drop session with id
         delete_session(session_id)
         return HttpResponse(status=200)
     else:
